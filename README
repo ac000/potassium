@@ -1,0 +1,33 @@
+What
+----
+
+potassium is a clutter based music player using libmozart.
+
+
+Build requirements
+------------------
+
+libmozart
+glib2
+gstreamer
+
+
+Usage
+-----
+
+$ LD_LIBRARY_PATH=/path/to/libmozart ./potassium file | playlist
+
+
+Keybindings
+-----------
+
+Esc, q			Quit
+Right Cursor		Next track
+Left Cursor		Previous track
+Down Cursor		Replay track
+Page Up			Seek forwards 60 seconds
+Page Down		Seek backwards 10 seconds
+r			toggle repeat single track
+a			toggle repeat all tracks
+s			toggle shuffle
+space			toggle play/pause
