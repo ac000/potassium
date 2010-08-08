@@ -337,6 +337,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	g_set_application_name("potassium music player");
+
 	clutter_init(&argc, &argv);
 	
 	stage = clutter_stage_get_default();
