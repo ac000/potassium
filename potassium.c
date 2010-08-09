@@ -374,6 +374,10 @@ int main(int argc, char **argv)
 
 	mozart_init(argc, argv);
 	
+	/*
+	 * strdup() argv[1] here, as it seems to get mangled by
+	 * generate_playlist()
+	 */
 	generate_playlist(strdup(argv[1]), NULL);
 	mozart_rock_and_roll();
 	init_icons(stage);
