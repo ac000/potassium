@@ -334,6 +334,11 @@ static gboolean write_checkpoint_data(char *what)
 {
 	char data[512];
 	int fd;
+	GstState state;
+
+	state = mozart_get_player_state();
+	if (state != GST_STATE_PLAYING)
+		return TRUE;
 
 	fd = creat("/tmp/potassium-checkpoint.tmp", 0666);
 
