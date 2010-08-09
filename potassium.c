@@ -12,6 +12,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <string.h>
 
 #include <clutter/clutter.h>
@@ -31,6 +34,7 @@ static gboolean set_status_icons(GstBus *mozart_bus, gpointer user_data,
 static void toggle_repeat(ClutterActor *stage, char *type);
 static void toggle_shuffle(ClutterActor *stage);
 static void init_icons(ClutterActor *stage);
+static gboolean write_checkpoint_data(char *what);
 
 /*
  * Reads in a playlist file or just creates a playlist from a
@@ -326,6 +330,23 @@ static void init_icons(ClutterActor *stage)
 	clutter_container_add_actor(CLUTTER_CONTAINER(stage), pause_img);
 }
 
+static gboolean write_checkpoint_data(char *what)
+{
+	char data[512];
+	int fd;
+
+	fd = creat("/tmp/potassium-checkpoint.tmp", 0666);
+
+	sprintf(data, "%s\n%d\n%lu\n", what, mozart_get_playlist_position(),
+					mozart_get_stream_position_ns());
+	write(fd, data, strlen(data));
+	rename("/tmp/potassium-checkpoint.tmp", "/tmp/potassium-checkpoint");
+
+	close(fd);
+
+	return TRUE;
+}
+
 int main(int argc, char **argv)
 {
 	ClutterActor *stage;
@@ -353,11 +374,13 @@ int main(int argc, char **argv)
 
 	mozart_init(argc, argv);
 	
-	generate_playlist(argv[1], NULL);
+	generate_playlist(strdup(argv[1]), NULL);
 	mozart_rock_and_roll();
 	init_icons(stage);
 
 	g_timeout_add(500, (GSourceFunc)update_display, stage);
+	g_timeout_add_seconds(1, (GSourceFunc)write_checkpoint_data,
+								argv[1]);
 	g_signal_connect(mozart_bus, "message::state-changed",
 					G_CALLBACK(set_status_icons), stage);
 	
