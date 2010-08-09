@@ -231,7 +231,7 @@ static void toggle_repeat(ClutterActor *stage, char *type)
 	if (strcmp(type, "single") == 0) {
 		if (mozart_get_repeat_all()) {
 			mozart_toggle_repeat_all();
-			clutter_actor_raise(rs_img, ra_img);
+			clutter_actor_hide(ra_img);
 			clutter_actor_show(rs_img);
 			mozart_toggle_repeat_single();
 		} else if (mozart_get_repeat_single()) {
@@ -240,13 +240,13 @@ static void toggle_repeat(ClutterActor *stage, char *type)
 			mozart_toggle_repeat_single();
 		} else {
 			mozart_toggle_repeat_single();
-			clutter_actor_raise(rs_img, ra_img);
+			clutter_actor_hide(ra_img);
 			clutter_actor_show(rs_img);
 		}	
 	} else if (strcmp(type, "all") == 0) {
 		if (mozart_get_repeat_single()) {
 			mozart_toggle_repeat_single();
-			clutter_actor_raise(ra_img, rs_img);
+			clutter_actor_hide(rs_img);
 			clutter_actor_show(ra_img);
 			mozart_toggle_repeat_all();
 		} else if (mozart_get_repeat_all()) {
@@ -255,7 +255,7 @@ static void toggle_repeat(ClutterActor *stage, char *type)
 			mozart_toggle_repeat_all();
 		} else {
 			mozart_toggle_repeat_all();
-			clutter_actor_raise(ra_img, rs_img);
+			clutter_actor_hide(rs_img);
 			clutter_actor_show(ra_img);
 		}
 	}
