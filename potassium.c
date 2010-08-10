@@ -34,7 +34,8 @@ static gboolean set_status_icons(GstBus *mozart_bus, gpointer user_data,
 static void toggle_repeat(ClutterActor *stage, char *type);
 static void toggle_shuffle(ClutterActor *stage);
 static void init_icons(ClutterActor *stage);
-static gboolean write_checkpoint_data(char *what);
+static gboolean write_checkpoint_data();
+static void read_checkpoint_data();
 
 /*
  * Reads in a playlist file or just creates a playlist from a
@@ -42,6 +43,9 @@ static gboolean write_checkpoint_data(char *what);
  */
 static void generate_playlist(char *playlist, char *name)
 {
+	if (name != NULL)
+		mozart_init_playlist(name);
+
 	if (g_str_has_suffix(playlist, ".m3u"))
 		mozart_add_m3u_to_playlist(playlist, name);
 	else
@@ -330,7 +334,7 @@ static void init_icons(ClutterActor *stage)
 	clutter_container_add_actor(CLUTTER_CONTAINER(stage), pause_img);
 }
 
-static gboolean write_checkpoint_data(char *what)
+static gboolean write_checkpoint_data()
 {
 	char data[512];
 	int fd;
@@ -342,7 +346,8 @@ static gboolean write_checkpoint_data(char *what)
 
 	fd = creat("/tmp/potassium-checkpoint.tmp", 0666);
 
-	sprintf(data, "%s\n%d\n%lu\n", what, mozart_get_playlist_position(),
+	sprintf(data, "%s\n%d\n%lu\n", mozart_get_active_playlist_name(),
+					mozart_get_playlist_position(),
 					mozart_get_stream_position_ns());
 	write(fd, data, strlen(data));
 	rename("/tmp/potassium-checkpoint.tmp", "/tmp/potassium-checkpoint");
@@ -352,16 +357,38 @@ static gboolean write_checkpoint_data(char *what)
 	return TRUE;
 }
 
+static void read_checkpoint_data()
+{
+	static FILE *fp;
+	char data[512];
+	int track;
+	gint64 pos;
+
+	fp = fopen("/tmp/potassium-checkpoint", "r");
+
+	fgets(data, 512, fp);
+	generate_playlist(g_strchomp(strdup(data)), g_strchomp(strdup(data)));
+	mozart_switch_playlist(g_strchomp(data));
+
+	fgets(data, 512, fp);
+	track = atoi(data);
+
+	fgets(data, 512, fp);
+	pos = atoll(data);
+
+	fclose(fp);
+
+	/*
+	 * track - 1 here as the playlist index starts at 0
+	 */
+	mozart_play_index_at_pos(track - 1, pos);
+}
+
 int main(int argc, char **argv)
 {
 	ClutterActor *stage;
 	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
 	const gchar *stage_title = { "potassium music player" };
-
-	if (argc < 2) {
-		g_printerr("Usage: %s file | playlist\n", argv[0]);
-		exit(1);
-	}
 
 	g_set_application_name("potassium music player");
 
@@ -379,17 +406,23 @@ int main(int argc, char **argv)
 
 	mozart_init(argc, argv);
 	
-	/*
-	 * strdup() argv[1] here, as it seems to get mangled by
-	 * generate_playlist()
-	 */
-	generate_playlist(strdup(argv[1]), NULL);
-	mozart_rock_and_roll();
+	if (argc == 2) {
+		/*
+		 * strdup() argv[1] here, as it seems to get mangled by
+		 * generate_playlist()
+		 */
+		mozart_init_playlist(strdup(argv[1]));
+		generate_playlist(strdup(argv[1]), strdup(argv[1]));
+		mozart_switch_playlist(argv[1]);
+		mozart_rock_and_roll();
+	} else {
+		read_checkpoint_data();
+	}
+
 	init_icons(stage);
 
 	g_timeout_add(500, (GSourceFunc)update_display, stage);
-	g_timeout_add_seconds(1, (GSourceFunc)write_checkpoint_data,
-								argv[1]);
+	g_timeout_add_seconds(1, (GSourceFunc)write_checkpoint_data, NULL);
 	g_signal_connect(mozart_bus, "message::state-changed",
 					G_CALLBACK(set_status_icons), stage);
 	
