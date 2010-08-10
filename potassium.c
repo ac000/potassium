@@ -347,7 +347,7 @@ static gboolean write_checkpoint_data()
 
 	fd = creat("/tmp/potassium-checkpoint.tmp", 0666);
 
-	sprintf(data, "%s\n%d\n%lu\n", mozart_get_active_playlist_name(),
+	sprintf(data, "%s\n%d\n%ld\n", mozart_get_active_playlist_name(),
 					mozart_get_playlist_position(),
 					mozart_get_stream_position_ns());
 	write(fd, data, strlen(data));
