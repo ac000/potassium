@@ -79,6 +79,9 @@ static gboolean update_display(ClutterActor *stage)
 	char time_info[22];
 	char time_data[80];
 
+	if (mozart_get_player_state() != GST_STATE_PLAYING)
+		return TRUE;
+
 	if (!artist_text) {
 		artist_text = clutter_text_new_full("Sans 14", NULL, 
 								&actor_color);
@@ -338,10 +341,8 @@ static gboolean write_checkpoint_data()
 {
 	char data[512];
 	int fd;
-	GstState state;
 
-	state = mozart_get_player_state();
-	if (state != GST_STATE_PLAYING)
+	if (mozart_get_player_state() != GST_STATE_PLAYING)
 		return TRUE;
 
 	fd = creat("/tmp/potassium-checkpoint.tmp", 0666);
