@@ -366,6 +366,10 @@ static void read_checkpoint_data()
 	gint64 pos;
 
 	fp = fopen("/tmp/potassium-checkpoint", "r");
+	if (!fp) {
+		fprintf(stderr, "Error: Could not find checkpoint file.\n");
+		exit(-1);
+	}
 
 	fgets(data, 512, fp);
 	generate_playlist(g_strchomp(strdup(data)), g_strchomp(strdup(data)));
