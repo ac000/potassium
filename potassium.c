@@ -351,9 +351,8 @@ static gboolean write_checkpoint_data()
 					mozart_get_playlist_position(),
 					mozart_get_stream_position_ns());
 	write(fd, data, strlen(data));
-	rename("/tmp/potassium-checkpoint.tmp", "/tmp/potassium-checkpoint");
-
 	close(fd);
+	rename("/tmp/potassium-checkpoint.tmp", "/tmp/potassium-checkpoint");
 
 	return TRUE;
 }
