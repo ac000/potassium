@@ -43,8 +43,7 @@ static void read_checkpoint_data();
  */
 static void generate_playlist(char *playlist, char *name)
 {
-	if (name != NULL)
-		mozart_init_playlist(name);
+	mozart_init_playlist(name);
 
 	if (g_str_has_suffix(playlist, ".m3u"))
 		mozart_add_m3u_to_playlist(playlist, name);
@@ -415,7 +414,6 @@ int main(int argc, char **argv)
 		 * strdup() argv[1] here, as it seems to get mangled by
 		 * generate_playlist()
 		 */
-		mozart_init_playlist(strdup(argv[1]));
 		generate_playlist(strdup(argv[1]), strdup(argv[1]));
 		mozart_switch_playlist(argv[1]);
 		mozart_rock_and_roll();
