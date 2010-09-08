@@ -416,7 +416,6 @@ int main(int argc, char **argv)
 		 */
 		generate_playlist(strdup(argv[1]), strdup(argv[1]));
 		mozart_switch_playlist(argv[1]);
-		mozart_rock_and_roll();
 	} else {
 		read_checkpoint_data();
 	}
