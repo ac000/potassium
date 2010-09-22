@@ -342,7 +342,7 @@ static gboolean write_checkpoint_data()
 	int fd;
 
 	if (mozart_get_player_state() != GST_STATE_PLAYING)
-		return TRUE;
+		goto out;
 
 	fd = creat("/tmp/potassium-checkpoint.tmp", 0666);
 
@@ -353,6 +353,7 @@ static gboolean write_checkpoint_data()
 	close(fd);
 	rename("/tmp/potassium-checkpoint.tmp", "/tmp/potassium-checkpoint");
 
+out:
 	return TRUE;
 }
 
