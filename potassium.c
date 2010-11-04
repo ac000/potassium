@@ -54,7 +54,12 @@ static void generate_playlist(char *playlist, char *name)
 /* Get track position information */
 static char *get_position(char *time_info)
 {
-	int hours, thours, minutes, tminutes, seconds, tseconds;
+	int hours;
+	int thours;
+	int minutes;
+	int tminutes;
+	int seconds;
+	int tseconds;
 	char *buf;
 
 	mozart_get_stream_position_hms(&hours, &minutes, &seconds);
@@ -74,7 +79,10 @@ static char *get_position(char *time_info)
 static gboolean update_display(ClutterActor *stage)
 {
 	static ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
-	static ClutterActor *artist_text, *album_text, *title_text, *time_text;
+	static ClutterActor *artist_text;
+	static ClutterActor *album_text;
+	static ClutterActor *title_text;
+	static ClutterActor *time_text;
 	char time_info[22];
 	char time_data[80];
 
