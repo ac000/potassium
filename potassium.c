@@ -90,7 +90,7 @@ static gboolean update_display(ClutterActor *stage)
 		return TRUE;
 
 	if (!artist_text) {
-		artist_text = clutter_text_new_full("Sans 14", NULL, 
+		artist_text = clutter_text_new_full("Sans 14", "",
 								&actor_color);
 		clutter_actor_set_position(artist_text, 10, 0);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage), 
@@ -99,7 +99,7 @@ static gboolean update_display(ClutterActor *stage)
 	}
 
 	if (!album_text) {
-		album_text = clutter_text_new_full("Sans 14", NULL,
+		album_text = clutter_text_new_full("Sans 14", "",
 								&actor_color);
 		clutter_actor_set_position(album_text, 20, 22);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage),
@@ -108,7 +108,7 @@ static gboolean update_display(ClutterActor *stage)
 	}
 
 	if (!title_text) {
-		title_text = clutter_text_new_full("Sans 14", NULL,
+		title_text = clutter_text_new_full("Sans 14", "",
 								&actor_color);
 		clutter_actor_set_position(title_text, 30, 44);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage),
@@ -117,7 +117,7 @@ static gboolean update_display(ClutterActor *stage)
 	}
 
 	if (!time_text) {
-		time_text = clutter_text_new_full("Sans 14", NULL, 
+		time_text = clutter_text_new_full("Sans 14", "",
 								&actor_color);
 		clutter_actor_set_position(time_text, 10, 100);
 		clutter_container_add_actor(CLUTTER_CONTAINER(stage), 
