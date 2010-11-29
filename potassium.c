@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
+#include <signal.h>
 
 #include <clutter/clutter.h>
 #include <gst/gst.h>
@@ -365,6 +366,11 @@ out:
 	return TRUE;
 }
 
+static void dump_data()
+{
+	mozart_dump_state();
+}
+
 static void read_checkpoint_data()
 {
 	static FILE *fp;
@@ -401,6 +407,7 @@ int main(int argc, char **argv)
 	ClutterActor *stage;
 	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
 	const gchar *stage_title = { "potassium music player" };
+	struct sigaction action;
 
 	g_set_application_name("potassium music player");
 
@@ -412,6 +419,13 @@ int main(int argc, char **argv)
 	clutter_stage_set_title(CLUTTER_STAGE(stage), stage_title);
 	clutter_actor_set_name(stage, "stage");
 	clutter_actor_show(stage);
+
+	/* Setup signal handler for USR1 to dump player state */
+	memset(&action, 0, sizeof(&action));
+	sigemptyset(&action.sa_mask);
+	action.sa_handler = dump_data;
+	action.sa_flags = SA_RESTART;
+	sigaction(SIGUSR1, &action, NULL);
 
 	/* Handle keyboard/mouse events */
 	g_signal_connect(stage, "event", G_CALLBACK(input_events_cb), NULL);
