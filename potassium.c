@@ -5,7 +5,7 @@
  *
  * Copyright (C) 2010 Andrew Clayton
  *
- * License: GPLv2. See COPYING
+ * License: GPLv3. See COPYING
  *
  */
 
