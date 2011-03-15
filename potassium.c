@@ -66,7 +66,7 @@ static char *get_position(char *time_info)
 	mozart_get_stream_position_hms(&hours, &minutes, &seconds);
 	mozart_get_stream_duration_hms(&thours, &tminutes, &tseconds);
 
-	buf = malloc(sizeof(char) * 22);
+	buf = malloc(22);
 	sprintf(buf, "%d:%.2d:%.2d / %d:%.2d:%.2d", hours, minutes,
 					seconds, thours, tminutes, tseconds);
 
