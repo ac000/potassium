@@ -3,7 +3,7 @@
  *
  * Clutter based music player using libmozart
  *
- * Copyright (C) 2010 Andrew Clayton
+ * Copyright (C) 2010-2011 Andrew Clayton
  *
  * License: GPLv3. See COPYING
  *
