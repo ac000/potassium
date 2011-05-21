@@ -79,7 +79,7 @@ static char *get_position(char *time_info)
 /* Update the clutter display with track information */
 static gboolean update_display(ClutterActor *stage)
 {
-	static ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
+	static const ClutterColor actor_color = { 0xff, 0xff, 0xff, 0xff };
 	static ClutterActor *artist_text;
 	static ClutterActor *album_text;
 	static ClutterActor *title_text;
@@ -405,7 +405,7 @@ static void read_checkpoint_data()
 int main(int argc, char **argv)
 {
 	ClutterActor *stage;
-	ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
+	static const ClutterColor stage_clr = { 0x00, 0x00, 0x00, 0xff };
 	const gchar *stage_title = { "potassium music player" };
 	struct sigaction action;
 
