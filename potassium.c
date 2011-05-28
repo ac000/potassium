@@ -433,11 +433,7 @@ int main(int argc, char **argv)
 	mozart_init(argc, argv);
 	
 	if (argc == 2) {
-		/*
-		 * strdup() argv[1] here, as it seems to get mangled by
-		 * generate_playlist()
-		 */
-		generate_playlist(strdup(argv[1]), strdup(argv[1]));
+		generate_playlist(argv[1], argv[1]);
 		mozart_switch_playlist(argv[1]);
 	} else {
 		read_checkpoint_data();
