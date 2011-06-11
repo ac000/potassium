@@ -24,9 +24,8 @@
 
 #include <libmozart.h>
 
-
 static void generate_playlist(char *playlist, char *name);
-static char *get_position(char *time_info);
+static char *get_progress(char *time_info);
 static gboolean update_display(ClutterActor *stage);
 static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 							gpointer user_data);
@@ -53,8 +52,12 @@ static void generate_playlist(char *playlist, char *name)
 }
 
 /* Get track position information */
-static char *get_position(char *time_info)
+static char *get_progress(char *time_info)
 {
+	int psec;
+	int dsec;
+	static int pdsec;
+	float progress;
 	int hours;
 	int thours;
 	int minutes;
@@ -63,12 +66,21 @@ static char *get_position(char *time_info)
 	int tseconds;
 	char *buf;
 
-	mozart_get_stream_position_hms(&hours, &minutes, &seconds);
-	mozart_get_stream_duration_hms(&thours, &tminutes, &tseconds);
+	psec = mozart_get_stream_position_sec();
+	dsec = mozart_get_stream_duration_sec();
+	if (dsec == -1)
+		dsec = pdsec;
+	else
+		pdsec = dsec;
 
-	buf = malloc(22);
-	sprintf(buf, "%d:%.2d:%.2d / %d:%.2d:%.2d", hours, minutes,
-					seconds, thours, tminutes, tseconds);
+	mozart_convert_seconds_to_hms(psec, &hours, &minutes, &seconds);
+	mozart_convert_seconds_to_hms(dsec, &thours, &tminutes, &tseconds);
+	progress = (float)psec / (float)dsec * 100;
+
+	buf = malloc(35);
+	snprintf(buf, 35, "%d:%.2d:%.2d / %d:%.2d:%.2d [%6.2f%%]",
+					hours, minutes, seconds, thours,
+					tminutes, tseconds, progress);
 
 	strcpy(time_info, buf);
 	free(buf);
@@ -84,7 +96,7 @@ static gboolean update_display(ClutterActor *stage)
 	static ClutterActor *album_text;
 	static ClutterActor *title_text;
 	static ClutterActor *time_text;
-	char time_info[22];
+	char time_info[35];
 	char time_data[80];
 
 	if (mozart_get_player_state() != GST_STATE_PLAYING)
@@ -127,7 +139,7 @@ static gboolean update_display(ClutterActor *stage)
 	}
 	
 	if (mozart_tags_updated()) {
-		clutter_text_set_text(CLUTTER_TEXT(artist_text), 
+		clutter_text_set_text(CLUTTER_TEXT(artist_text),
 						mozart_get_tag_artist());
 		clutter_text_set_text(CLUTTER_TEXT(album_text),
 						mozart_get_tag_album());
@@ -136,8 +148,7 @@ static gboolean update_display(ClutterActor *stage)
 		mozart_set_got_tags();
 	}
 
-	sprintf(time_data, "%s [%6.2f%%] [%2d / %d]", get_position(time_info),
-						mozart_get_stream_progress(),
+	sprintf(time_data, "%s [%2d / %d]", get_progress(time_info),
 						mozart_get_playlist_position(),
 						mozart_get_playlist_size());
 	
