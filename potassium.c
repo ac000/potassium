@@ -24,18 +24,6 @@
 
 #include <libmozart.h>
 
-static void generate_playlist(char *playlist, char *name);
-static char *get_progress(char *time_info);
-static gboolean update_display(ClutterActor *stage);
-static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
-							gpointer user_data);
-static gboolean set_status_icons(GstBus *mozart_bus, gpointer user_data,
-							ClutterActor *stage);
-static void toggle_repeat(ClutterActor *stage, char *type);
-static void toggle_shuffle(ClutterActor *stage);
-static void init_icons(ClutterActor *stage);
-static gboolean write_checkpoint_data();
-static void read_checkpoint_data();
 
 /*
  * Reads in a playlist file or just creates a playlist from a
@@ -157,6 +145,67 @@ static gboolean update_display(ClutterActor *stage)
 	return TRUE;
 }
 
+/* Set an icon for shuffle mode */
+static void toggle_shuffle(ClutterActor *stage)
+{
+	ClutterActor *shuffle_img;
+
+	shuffle_img = clutter_container_find_child_by_name(
+				CLUTTER_CONTAINER(stage), "shuffle_img");
+
+	if (mozart_playlist_shuffled(NULL)) {
+		clutter_actor_hide(shuffle_img);
+		mozart_unshuffle(NULL);
+	} else {
+		clutter_actor_show(shuffle_img);
+		mozart_shuffle(NULL);
+	}
+}
+
+/* Set an icon for repeat single or repeat all */
+static void toggle_repeat(ClutterActor *stage, char *type)
+{
+	ClutterActor *rs_img;
+	ClutterActor *ra_img;
+
+	rs_img = clutter_container_find_child_by_name(
+					CLUTTER_CONTAINER(stage), "rs_img");
+	ra_img = clutter_container_find_child_by_name(
+					CLUTTER_CONTAINER(stage), "ra_img");
+
+	if (strcmp(type, "single") == 0) {
+		if (mozart_get_repeat_all()) {
+			mozart_toggle_repeat_all();
+			clutter_actor_hide(ra_img);
+			clutter_actor_show(rs_img);
+			mozart_toggle_repeat_single();
+		} else if (mozart_get_repeat_single()) {
+			clutter_actor_hide(rs_img);
+			clutter_actor_hide(ra_img);
+			mozart_toggle_repeat_single();
+		} else {
+			mozart_toggle_repeat_single();
+			clutter_actor_hide(ra_img);
+			clutter_actor_show(rs_img);
+		}
+	} else if (strcmp(type, "all") == 0) {
+		if (mozart_get_repeat_single()) {
+			mozart_toggle_repeat_single();
+			clutter_actor_hide(rs_img);
+			clutter_actor_show(ra_img);
+			mozart_toggle_repeat_all();
+		} else if (mozart_get_repeat_all()) {
+			clutter_actor_hide(ra_img);
+			clutter_actor_hide(rs_img);
+			mozart_toggle_repeat_all();
+		} else {
+			mozart_toggle_repeat_all();
+			clutter_actor_hide(rs_img);
+			clutter_actor_show(ra_img);
+		}
+	}
+}
+
 /* Process keyboard/mouse events */
 static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 							gpointer user_data)
@@ -247,67 +296,6 @@ static gboolean set_status_icons(GstBus *mozart_bus, gpointer user_data,
 	return TRUE;
 }
 
-/* Set an icon for repeat single or repeat all */
-static void toggle_repeat(ClutterActor *stage, char *type)
-{
-	ClutterActor *rs_img;
-	ClutterActor *ra_img;
-
-	rs_img = clutter_container_find_child_by_name(
-					CLUTTER_CONTAINER(stage), "rs_img");
-	ra_img = clutter_container_find_child_by_name(
-					CLUTTER_CONTAINER(stage), "ra_img");
-
-	if (strcmp(type, "single") == 0) {
-		if (mozart_get_repeat_all()) {
-			mozart_toggle_repeat_all();
-			clutter_actor_hide(ra_img);
-			clutter_actor_show(rs_img);
-			mozart_toggle_repeat_single();
-		} else if (mozart_get_repeat_single()) {
-			clutter_actor_hide(rs_img);
-			clutter_actor_hide(ra_img);
-			mozart_toggle_repeat_single();
-		} else {
-			mozart_toggle_repeat_single();
-			clutter_actor_hide(ra_img);
-			clutter_actor_show(rs_img);
-		}	
-	} else if (strcmp(type, "all") == 0) {
-		if (mozart_get_repeat_single()) {
-			mozart_toggle_repeat_single();
-			clutter_actor_hide(rs_img);
-			clutter_actor_show(ra_img);
-			mozart_toggle_repeat_all();
-		} else if (mozart_get_repeat_all()) {
-			clutter_actor_hide(ra_img);
-			clutter_actor_hide(rs_img);
-			mozart_toggle_repeat_all();
-		} else {
-			mozart_toggle_repeat_all();
-			clutter_actor_hide(rs_img);
-			clutter_actor_show(ra_img);
-		}
-	}
-}
-
-/* Set an icon for shuffle mode */
-static void toggle_shuffle(ClutterActor *stage)
-{
-	ClutterActor *shuffle_img;
-
-	shuffle_img = clutter_container_find_child_by_name(
-				CLUTTER_CONTAINER(stage), "shuffle_img");
-
-	if (mozart_playlist_shuffled(NULL)) {
-		clutter_actor_hide(shuffle_img);
-		mozart_unshuffle(NULL);
-	} else {
-		clutter_actor_show(shuffle_img);
-		mozart_shuffle(NULL);
-	}
-}
-
 /* Setup various status icons */
 static void init_icons(ClutterActor *stage)
 {
@@ -356,7 +344,7 @@ static void init_icons(ClutterActor *stage)
 	clutter_container_add_actor(CLUTTER_CONTAINER(stage), pause_img);
 }
 
-static gboolean write_checkpoint_data()
+static gboolean write_checkpoint_data(void)
 {
 	char data[512];
 	int fd;
@@ -377,12 +365,12 @@ out:
 	return TRUE;
 }
 
-static void dump_data()
+static void dump_data(int sig)
 {
 	mozart_dump_state();
 }
 
-static void read_checkpoint_data()
+static void read_checkpoint_data(void)
 {
 	static FILE *fp;
 	char data[512];
