@@ -10,12 +10,13 @@ Build requirements
 libmozart
 glib2
 gstreamer
+clutter
 
 
 Usage
 -----
 
-$ LD_LIBRARY_PATH=/path/to/libmozart ./potassium file | playlist
+$ LD_LIBRARY_PATH=/path/to/libmozart ./potassium file:///path/to/file | playlist
 
 
 Keybindings
