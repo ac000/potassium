@@ -214,9 +214,8 @@ static void input_events_cb(ClutterActor *stage, ClutterEvent *event,
 	if (event->type != CLUTTER_KEY_PRESS)
 		return;
 
-	guint sym;
+	guint sym = clutter_event_get_key_symbol(event);
 
-	sym = clutter_event_get_key_symbol(event);
 	switch (sym) {
 	case CLUTTER_Escape:
 	case CLUTTER_q:
